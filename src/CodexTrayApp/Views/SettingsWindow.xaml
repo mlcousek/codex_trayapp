@@ -1,0 +1,289 @@
+<Window x:Class="CodexTrayApp.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:CodexTrayApp.ViewModels"
+        Title="Codex Usage Tray settings"
+        Icon="pack://application:,,,/Assets/app.ico"
+        Width="500"
+        SizeToContent="Height"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="True"
+        Background="{DynamicResource SurfaceBrush}"
+        Foreground="{DynamicResource TextPrimaryBrush}"
+        FontFamily="{StaticResource UiFontFamily}"
+        FontSize="{StaticResource FontSizeBody}"
+        TextOptions.TextFormattingMode="Display"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        AutomationProperties.Name="Codex Usage Tray settings">
+    <Window.Resources>
+        <Style x:Key="SectionTitle" TargetType="TextBlock" BasedOn="{StaticResource EyebrowText}">
+            <Setter Property="Margin" Value="0,18,0,6" />
+        </Style>
+        <Style x:Key="RowLabel" TargetType="TextBlock" BasedOn="{StaticResource BodyText}">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="0,0,16,0" />
+        </Style>
+        <Style x:Key="Note" TargetType="TextBlock" BasedOn="{StaticResource CaptionText}">
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,2,0,0" />
+        </Style>
+        <Style x:Key="Row" TargetType="Grid">
+            <Setter Property="Margin" Value="0,0,0,6" />
+        </Style>
+        <Style x:Key="Check" TargetType="CheckBox" BasedOn="{StaticResource SettingsCheckBox}">
+            <Setter Property="Margin" Value="0,0,0,6" />
+        </Style>
+    </Window.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+        <Border Padding="28,18,28,18">
+            <StackPanel>
+                <TextBlock Style="{StaticResource Note}" Margin="0" Text="Changes apply at once and are kept in settings.json." />
+                <Border Margin="0,8,0,0"
+                        Padding="10,8"
+                        CornerRadius="6"
+                        Background="{DynamicResource SurfaceElevatedBrush}"
+                        Visibility="{Binding FileError, Converter={StaticResource TextToVisibility}}">
+                    <TextBlock Style="{StaticResource CaptionText}" Foreground="{DynamicResource DangerBrush}" Text="{Binding FileError}" TextWrapping="Wrap" />
+                </Border>
+
+                <!-- Startup -->
+                <TextBlock Style="{StaticResource SectionTitle}" Text="Startup" />
+                <CheckBox Style="{StaticResource Check}"
+                          Content="Start with Windows"
+                          IsChecked="{Binding StartWithWindows}"
+                          AutomationProperties.Name="Start with Windows" />
+                <TextBlock Style="{StaticResource Note}"
+                           Margin="0,-2,0,0"
+                           Text="On by default. A per-user startup entry, no administrator rights." />
+                <TextBlock Style="{StaticResource Note}"
+                           Foreground="{DynamicResource WarnBrush}"
+                           Text="{Binding StartupNote}"
+                           Visibility="{Binding StartupNote, Converter={StaticResource TextToVisibility}}" />
+
+                <!-- Refresh -->
+                <TextBlock Style="{StaticResource SectionTitle}" Text="Refresh" />
+                <Grid Style="{StaticResource Row}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Style="{StaticResource RowLabel}" Text="Check usage every" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBox x:Name="PollIntervalBox"
+                                 Style="{StaticResource SettingsTextBox}"
+                                 Width="80"
+                                 Text="{Binding PollIntervalText, UpdateSourceTrigger=PropertyChanged}"
+                                 AutomationProperties.Name="Poll interval in seconds" />
+                        <TextBlock Style="{StaticResource CaptionText}" Margin="8,0,0,0" VerticalAlignment="Center" Text="seconds, at least 180" />
+                    </StackPanel>
+                </Grid>
+                <TextBlock Style="{StaticResource Note}" Margin="0,-2,0,0" Text="{Binding PollIntervalNote}" Foreground="{DynamicResource WarnBrush}" Visibility="{Binding PollIntervalNote, Converter={StaticResource TextToVisibility}}" />
+
+                <!-- Tray icon -->
+                <TextBlock Style="{StaticResource SectionTitle}" Text="Tray icon" />
+                <Grid Style="{StaticResource Row}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Style="{StaticResource RowLabel}" Text="Window shown in the icon" />
+                    <ComboBox Grid.Column="1"
+                              Style="{StaticResource SettingsComboBox}"
+                              ItemsSource="{Binding TrayWindowChoices}"
+                              SelectedItem="{Binding SelectedTrayWindow}"
+                              DisplayMemberPath="Label"
+                              AutomationProperties.Name="Window shown in the tray icon" />
+                </Grid>
+
+                <!-- Flyout -->
+                <TextBlock Style="{StaticResource SectionTitle}" Text="Flyout" />
+                <Grid Style="{StaticResource Row}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Style="{StaticResource RowLabel}" Text="Theme" />
+                    <ComboBox Grid.Column="1"
+                              Style="{StaticResource SettingsComboBox}"
+                              ItemsSource="{x:Static vm:SettingsViewModel.ThemeChoices}"
+                              SelectedItem="{Binding SelectedTheme}"
+                              DisplayMemberPath="Label"
+                              AutomationProperties.Name="Theme" />
+                </Grid>
+                <Grid Style="{StaticResource Row}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Style="{StaticResource RowLabel}" Text="History chart range" />
+                    <ComboBox Grid.Column="1"
+                              Style="{StaticResource SettingsComboBox}"
+                              ItemsSource="{x:Static vm:SettingsViewModel.ChartRangeChoices}"
+                              SelectedItem="{Binding SelectedChartRange}"
+                              DisplayMemberPath="Label"
+                              AutomationProperties.Name="History chart range" />
+                </Grid>
+                <CheckBox Style="{StaticResource Check}"
+                          Content="Mask my account email"
+                          IsChecked="{Binding MaskEmail}"
+                          AutomationProperties.Name="Mask my account email" />
+                <CheckBox Style="{StaticResource Check}"
+                          Content="Show tokens, cost and pace from Codex CLI session logs"
+                          IsChecked="{Binding ShowLocalAnalytics}"
+                          AutomationProperties.Name="Show local analytics" />
+                <CheckBox Style="{StaticResource Check}"
+                          Content="Show the credit balance line"
+                          IsChecked="{Binding ShowExtraUsage}"
+                          AutomationProperties.Name="Show the credit balance line" />
+                <CheckBox Style="{StaticResource Check}"
+                          Content="Show inactive additional usage windows"
+                          ToolTip="Include additional windows at 0% with no reset time."
+                          IsChecked="{Binding ShowInactiveWindows}"
+                          AutomationProperties.Name="Show inactive additional windows" />
+
+                <!-- Notifications -->
+                <TextBlock Style="{StaticResource SectionTitle}" Text="Notifications" />
+                <CheckBox Style="{StaticResource Check}"
+                          Content="Tell me when a window passes a threshold"
+                          IsChecked="{Binding NotificationsEnabled}"
+                          AutomationProperties.Name="Enable threshold notifications" />
+                <Grid Style="{StaticResource Row}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Style="{StaticResource RowLabel}" Text="Thresholds (percent)" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBox x:Name="ThresholdsBox"
+                                 Style="{StaticResource SettingsTextBox}"
+                                 Width="140"
+                                 Text="{Binding ThresholdsText, UpdateSourceTrigger=PropertyChanged}"
+                                 IsEnabled="{Binding NotificationsEnabled}"
+                                 AutomationProperties.Name="Notification thresholds in percent" />
+                        <TextBlock Style="{StaticResource CaptionText}" Margin="8,0,0,0" VerticalAlignment="Center" Text="once per period" />
+                    </StackPanel>
+                </Grid>
+                <TextBlock Style="{StaticResource Note}" Margin="0,-2,0,0" Text="{Binding ThresholdsNote}" Foreground="{DynamicResource WarnBrush}" Visibility="{Binding ThresholdsNote, Converter={StaticResource TextToVisibility}}" />
+
+                <!-- History -->
+                <TextBlock Style="{StaticResource SectionTitle}" Text="History" />
+                <Grid Style="{StaticResource Row}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Style="{StaticResource RowLabel}" Text="Keep history for" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBox x:Name="RetentionBox"
+                                 Style="{StaticResource SettingsTextBox}"
+                                 Width="80"
+                                 Text="{Binding RetentionText, UpdateSourceTrigger=PropertyChanged}"
+                                 AutomationProperties.Name="History retention in days" />
+                        <TextBlock Style="{StaticResource CaptionText}" Margin="8,0,0,0" VerticalAlignment="Center" Text="days" />
+                        <Button x:Name="ClearHistoryButton"
+                                Style="{StaticResource FlyoutButton}"
+                                Margin="16,0,0,0"
+                                Content="Clear history…"
+                                AutomationProperties.Name="Clear history" />
+                    </StackPanel>
+                </Grid>
+                <TextBlock Style="{StaticResource Note}" Margin="0,-2,0,0" Text="{Binding RetentionNote}" Foreground="{DynamicResource WarnBrush}" Visibility="{Binding RetentionNote, Converter={StaticResource TextToVisibility}}" />
+                <TextBlock Style="{StaticResource Note}" Margin="0,-2,0,0" Text="{Binding HistoryStatus}" Visibility="{Binding HistoryStatus, Converter={StaticResource TextToVisibility}}" />
+                <TextBlock Style="{StaticResource Note}" Margin="0,-2,0,0" Text="Clearing empties the local database only; the session logs are never touched." />
+
+                <!-- Pricing -->
+                <TextBlock Style="{StaticResource SectionTitle}" Text="Pricing" />
+                <Grid Style="{StaticResource Row}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Style="{StaticResource RowLabel}" Text="Pricing file" />
+                    <TextBox x:Name="PricingPathBox"
+                             Grid.Column="1"
+                             Style="{StaticResource SettingsTextBox}"
+                             Text="{Binding PricingPathText, UpdateSourceTrigger=PropertyChanged}"
+                             AutomationProperties.Name="Pricing file path; empty means the bundled file" />
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="8,0,0,0">
+                        <Button Style="{StaticResource FlyoutButton}" Content="Browse…" Command="{Binding BrowsePricingCommand}" AutomationProperties.Name="Browse for a pricing file" />
+                        <Button Style="{StaticResource LinkButton}" Margin="4,0,0,0" Content="Use bundled" Command="{Binding UseBundledPricingCommand}" AutomationProperties.Name="Use the bundled pricing file" />
+                    </StackPanel>
+                </Grid>
+                <TextBlock Style="{StaticResource Note}" Margin="0,-2,0,0" Text="{Binding PricingStatus}" />
+                <TextBlock Style="{StaticResource Note}" Margin="0,-2,0,0" Text="USD per million tokens. Unknown models show “cost unknown”, never a guess." />
+
+                <!-- Updates -->
+                <TextBlock Style="{StaticResource SectionTitle}" Text="Updates" />
+                <CheckBox Style="{StaticResource Check}"
+                          Content="Check GitHub weekly for a newer release"
+                          IsChecked="{Binding CheckForUpdates}"
+                          AutomationProperties.Name="Check for updates weekly" />
+                <Grid Style="{StaticResource Row}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Style="{StaticResource RowLabel}" Text="{Binding CurrentVersionText}" />
+                    <TextBlock Grid.Column="1"
+                               Style="{StaticResource CaptionText}"
+                               VerticalAlignment="Center"
+                               Text="{Binding UpdateStatus}"
+                               TextWrapping="Wrap" />
+                    <Button Grid.Column="2"
+                            Style="{StaticResource FlyoutButton}"
+                            Margin="8,0,0,0"
+                            Content="Releases…"
+                            Command="{Binding OpenReleasePageCommand}"
+                            AutomationProperties.Name="Open the releases page on GitHub" />
+                </Grid>
+                <TextBlock Style="{StaticResource Note}" Margin="0,-2,0,0" Text="The check is one request to github.com that carries nothing about you. Nothing is downloaded or installed for you." />
+
+                <Border>
+                <StackPanel>
+                    <TextBlock Style="{StaticResource SectionTitle}" Text="Codex connection" />
+                    <TextBlock Style="{StaticResource CaptionText}" Text="Executable path (empty uses automatic discovery)" TextWrapping="Wrap" />
+                    <DockPanel Margin="0,4,0,8">
+                        <Button DockPanel.Dock="Right" Content="Browse…" Command="{Binding BrowseCodexExecutableCommand}" Margin="8,0,0,0" Style="{StaticResource FlyoutButton}" AutomationProperties.Name="Browse for Codex executable" />
+                        <TextBox Style="{StaticResource SettingsTextBox}" Text="{Binding CodexExecutableText, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Codex executable path" />
+                    </DockPanel>
+                    <TextBlock Style="{StaticResource CaptionText}" Text="Codex home (empty follows CODEX_HOME). Local scanning changes on restart." TextWrapping="Wrap" />
+                    <DockPanel Margin="0,4,0,8">
+                        <Button DockPanel.Dock="Right" Content="Browse…" Command="{Binding BrowseCodexHomeCommand}" Margin="8,0,0,0" Style="{StaticResource FlyoutButton}" AutomationProperties.Name="Browse for Codex home directory" />
+                        <TextBox Style="{StaticResource SettingsTextBox}" Text="{Binding CodexHomeText, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Codex home directory" />
+                    </DockPanel>
+                    <Button Style="{StaticResource FlyoutButton}" Content="Apply connection" Command="{Binding ApplyCodexPathsCommand}" HorizontalAlignment="Left" />
+                    <TextBlock Style="{StaticResource Note}" Foreground="{DynamicResource DangerBrush}" Text="{Binding ConnectionPathError}"
+                               Visibility="{Binding ConnectionPathError, Converter={StaticResource TextToVisibility}}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Footer -->
+                <Border Margin="0,18,0,0" Padding="0,12,0,0" BorderBrush="{DynamicResource HairlineBrush}" BorderThickness="0,1,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Style="{StaticResource CaptionText}" Text="{Binding SettingsPath}" TextTrimming="CharacterEllipsis" ToolTip="{Binding SettingsPath}" />
+                            <StackPanel Orientation="Horizontal" Margin="-6,2,0,0">
+                                <Button Style="{StaticResource LinkButton}" Content="Open folder" Command="{Binding OpenSettingsFolderCommand}" AutomationProperties.Name="Open the settings folder" />
+                                <Button Style="{StaticResource LinkButton}" Content="Reset to defaults" Command="{Binding ResetDefaultsCommand}" AutomationProperties.Name="Reset all settings to their defaults" />
+                            </StackPanel>
+                        </StackPanel>
+                        <Button x:Name="CloseButton"
+                                Grid.Column="1"
+                                Style="{StaticResource FlyoutButton}"
+                                Content="_Close"
+                                IsCancel="True"
+                                AutomationProperties.Name="Close settings" />
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </Border>
+    </ScrollViewer>
+</Window>

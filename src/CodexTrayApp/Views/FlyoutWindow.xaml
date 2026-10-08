@@ -1,0 +1,346 @@
+<Window x:Class="CodexTrayApp.Views.FlyoutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:CodexTrayApp.ViewModels"
+        xmlns:controls="clr-namespace:CodexTrayApp.Controls"
+        Title="Codex usage"
+        Width="380"
+        SizeToContent="Height"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Topmost="True"
+        WindowStartupLocation="Manual"
+        Background="{DynamicResource SurfaceBrush}"
+        Foreground="{DynamicResource TextPrimaryBrush}"
+        FontFamily="{StaticResource UiFontFamily}"
+        FontSize="{StaticResource FontSizeBody}"
+        TextOptions.TextFormattingMode="Display"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        AutomationProperties.Name="Codex usage">
+    <Window.Resources>
+        <DataTemplate x:Key="UsageRow" DataType="{x:Type vm:UsageRowViewModel}">
+            <Grid Margin="0,0,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource CaptionText}" Foreground="{DynamicResource TextPrimaryBrush}" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Column="1" Style="{StaticResource CaptionText}" Margin="10,0,0,0" Text="{Binding Detail}" />
+                <TextBlock Grid.Column="2" Style="{StaticResource CaptionText}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="10,0,0,0" MinWidth="44" TextAlignment="Right" Text="{Binding Value}" />
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+    <Border x:Name="RootBorder" Background="{DynamicResource SurfaceBrush}" Padding="20,18,20,14">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+        <StackPanel x:Name="Body">
+
+            <!-- Header: plan tier and masked account -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Style="{StaticResource TitleText}" Text="{Binding PlanTierText}" />
+                    <TextBlock Style="{StaticResource CaptionText}"
+                               Margin="0,1,0,0"
+                               Text="{Binding AccountText}"
+                               Visibility="{Binding HasAccount, Converter={StaticResource BoolToVisibility}}" />
+                </StackPanel>
+                <Button Grid.Column="1"
+                        Style="{StaticResource LinkButton}"
+                        VerticalAlignment="Top"
+                        Content="{Binding MaskToggleLabel}"
+                        Command="{Binding ToggleEmailMaskCommand}"
+                        Visibility="{Binding HasEmail, Converter={StaticResource BoolToVisibility}}"
+                        AutomationProperties.Name="Show or hide the account email" />
+            </Grid>
+
+            <!-- Status banner: stale, rate limited, not signed in -->
+            <Border Margin="0,12,0,0"
+                    Padding="10,8"
+                    CornerRadius="6"
+                    Background="{DynamicResource SurfaceElevatedBrush}"
+                    Visibility="{Binding HasStatusMessage, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel>
+                <TextBlock Style="{StaticResource CaptionText}"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
+                           Text="{Binding StatusMessage}"
+                           TextWrapping="Wrap" />
+                <Button Style="{StaticResource LinkButton}" HorizontalAlignment="Left" Margin="0,6,0,0"
+                        Content="Connection settings…" Command="{Binding OpenSettingsCommand}"
+                        Visibility="{Binding HasConnectionAction, Converter={StaticResource BoolToVisibility}}"
+                        AutomationProperties.Name="Open connection settings" />
+                </StackPanel>
+            </Border>
+
+            <!-- Hero: the primary window as a large ring -->
+            <Grid Margin="0,18,0,0"
+                  DataContext="{Binding Primary}"
+                  Visibility="{Binding DataContext.HasPrimary, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVisibility}}"
+                  AutomationProperties.Name="{Binding AutomationText}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid Width="116" Height="116">
+                    <controls:RingArc Style="{StaticResource HeroRing}" Percent="{Binding Percent}" />
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource HeroNumeral}" Text="{Binding PercentText}" />
+                        <TextBlock Style="{StaticResource CaptionText}" Margin="0,-2,0,0" HorizontalAlignment="Center" Text="used" />
+                    </StackPanel>
+                </Grid>
+                <StackPanel Grid.Column="1" Margin="20,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource EyebrowText}" Text="{Binding Name}" />
+                    <TextBlock Style="{StaticResource TitleText}" Margin="0,2,0,0" Text="{Binding StatusSentence}" TextWrapping="Wrap" />
+                    <TextBlock Style="{StaticResource BodyText}" Margin="0,8,0,0" Text="{Binding ResetText}" />
+                    <TextBlock Style="{StaticResource CaptionText}" Margin="0,1,0,0" Text="{Binding ResetsAtText}" />
+                    <controls:Sparkline Style="{StaticResource HeroSpark}"
+                                        Margin="0,8,0,0"
+                                        Points="{Binding SparkPoints}"
+                                        MinX="{Binding SparkMinX}"
+                                        MaxX="{Binding SparkMaxX}"
+                                        Visibility="{Binding HasSpark, Converter={StaticResource BoolToVisibility}}"
+                                        AutomationProperties.Name="Usage so far in this block" />
+                </StackPanel>
+            </Grid>
+
+            <!-- Pace of the current block, from the session logs and the endpoint percentage -->
+            <StackPanel Margin="0,12,0,0" Visibility="{Binding HasPace, Converter={StaticResource BoolToVisibility}}">
+                <TextBlock Style="{StaticResource CaptionText}" Text="{Binding PaceText}" TextWrapping="Wrap" />
+                <TextBlock Style="{StaticResource CaptionText}"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
+                           Margin="0,2,0,0"
+                           Text="{Binding ProjectionText}"
+                           TextWrapping="Wrap"
+                           Visibility="{Binding HasProjection, Converter={StaticResource BoolToVisibility}}" />
+            </StackPanel>
+
+            <!-- Secondary windows: compact rows -->
+            <ItemsControl Margin="0,18,0,0"
+                          ItemsSource="{Binding SecondaryWindows}"
+                          IsTabStop="False"
+                          Visibility="{Binding HasSecondary, Converter={StaticResource BoolToVisibility}}"
+                          AutomationProperties.Name="Other usage windows">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:UsageWindowViewModel}">
+                        <Grid Margin="0,0,0,12" AutomationProperties.Name="{Binding AutomationText}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Style="{StaticResource BodyText}" Text="{Binding Name}" />
+                            <controls:Sparkline Grid.Column="1"
+                                                Style="{StaticResource RowSpark}"
+                                                Margin="0,0,12,0"
+                                                VerticalAlignment="Center"
+                                                Points="{Binding SparkPoints}"
+                                                MinX="{Binding SparkMinX}"
+                                                MaxX="{Binding SparkMaxX}"
+                                                Visibility="{Binding HasSpark, Converter={StaticResource BoolToVisibility}}" />
+                            <TextBlock Grid.Column="2"
+                                       Style="{StaticResource CaptionText}"
+                                       Margin="0,0,10,0"
+                                       VerticalAlignment="Center"
+                                       Text="{Binding StatusText}"
+                                       Visibility="{Binding HasStatusText, Converter={StaticResource BoolToVisibility}}" />
+                            <TextBlock Grid.Column="3" Style="{StaticResource NumeralText}" Text="{Binding PercentText}" />
+                            <ProgressBar Grid.Row="1"
+                                         Grid.ColumnSpan="4"
+                                         Margin="0,6,0,0"
+                                         Style="{StaticResource ThinBar}"
+                                         Value="{Binding Percent, Mode=OneWay}"
+                                         AutomationProperties.Name="{Binding Name}" />
+                            <TextBlock Grid.Row="2"
+                                       Grid.ColumnSpan="4"
+                                       Margin="0,5,0,0"
+                                       Style="{StaticResource CaptionText}"
+                                       Text="{Binding ResetText}" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Honest empty state: never a fabricated percentage -->
+            <TextBlock Margin="0,14,0,0"
+                       Style="{StaticResource BodyText}"
+                       Text="{Binding UnavailableText}"
+                       TextWrapping="Wrap"
+                       Visibility="{Binding HasNoWindows, Converter={StaticResource BoolToVisibility}}" />
+
+            <!-- Extra usage balance -->
+            <Grid Margin="0,2,0,0"
+                  Visibility="{Binding HasOverage, Converter={StaticResource BoolToVisibility}}"
+                  AutomationProperties.Name="{Binding OverageText}">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{StaticResource BodyText}" Text="Credits" />
+                <TextBlock Grid.Column="1" Style="{StaticResource NumeralText}" Text="{Binding OverageAmountText}" />
+
+            </Grid>
+
+            <!-- Today, from the local session logs -->
+            <Border Margin="0,14,0,0"
+                    Padding="0,12,0,0"
+                    BorderBrush="{DynamicResource HairlineBrush}"
+                    BorderThickness="0,1,0,0"
+                    Visibility="{Binding HasToday, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Style="{StaticResource EyebrowText}" VerticalAlignment="Center" Text="Today" />
+                        <TextBlock Grid.Column="1" Style="{StaticResource NumeralText}" Text="{Binding TodayTokensText}" />
+                    </Grid>
+                    <TextBlock Style="{StaticResource CaptionText}" Margin="0,2,0,0" Text="{Binding TodayCostText}" TextWrapping="Wrap" />
+                    <ToggleButton x:Name="DetailsToggle"
+                                  Style="{StaticResource LinkToggle}"
+                                  Margin="0,6,0,0"
+                                  HorizontalAlignment="Left"
+                                  Content="{Binding DetailsToggleLabel}"
+                                  IsChecked="{Binding IsDetailsOpen}"
+                                  AutomationProperties.Name="Show or hide details by model and project" />
+                    <StackPanel Margin="0,8,0,0" Visibility="{Binding IsDetailsOpen, Converter={StaticResource BoolToVisibility}}">
+                        <ItemsControl ItemsSource="{Binding ModelRows}" ItemTemplate="{StaticResource UsageRow}" IsTabStop="False" AutomationProperties.Name="Tokens by model" />
+                        <TextBlock Style="{StaticResource EyebrowText}"
+                                   Margin="0,8,0,4"
+                                   Text="Top projects"
+                                   Visibility="{Binding HasProjects, Converter={StaticResource BoolToVisibility}}" />
+                        <ItemsControl ItemsSource="{Binding ProjectRows}" ItemTemplate="{StaticResource UsageRow}" IsTabStop="False" AutomationProperties.Name="Tokens by project" />
+                        <TextBlock Style="{StaticResource CaptionText}" Margin="0,6,0,0" Text="{Binding PricingNoteText}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Charts: one at a time, read from the history database; the section stays hidden until there is something to draw -->
+            <Border Margin="0,14,0,0"
+                    Padding="0,12,0,0"
+                    BorderBrush="{DynamicResource HairlineBrush}"
+                    BorderThickness="0,1,0,0"
+                    DataContext="{Binding Charts}"
+                    Visibility="{Binding HasAnyData, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Style="{StaticResource EyebrowText}" VerticalAlignment="Center" Text="Charts" />
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" AutomationProperties.Name="Chart to show">
+                            <RadioButton Style="{StaticResource SegmentButton}" GroupName="ChartKind" Content="This window" IsChecked="{Binding IsBlockSelected}" AutomationProperties.Name="This window" />
+                            <RadioButton Style="{StaticResource SegmentButton}" GroupName="ChartKind" Content="History" IsChecked="{Binding IsHistorySelected}" AutomationProperties.Name="History" />
+                            <RadioButton Style="{StaticResource SegmentButton}" GroupName="ChartKind" Content="Daily" IsChecked="{Binding IsDailySelected}" AutomationProperties.Name="Daily" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- This window: recorded 5-hour readings, a dashed projection, and the limit marked when it lands before the reset -->
+                    <StackPanel Margin="0,10,0,0" Visibility="{Binding IsBlockSelected, Converter={StaticResource BoolToVisibility}}">
+                        <controls:LineChart Style="{StaticResource FlyoutLineChart}"
+                                            Series="{Binding BlockSeries}"
+                                            Markers="{Binding BlockMarkers}"
+                                            MinX="{Binding BlockMinX}"
+                                            MaxX="{Binding BlockMaxX}"
+                                            StartLabel="{Binding BlockStartLabel}"
+                                            EndLabel="{Binding BlockEndLabel}"
+                                            XLabeler="{Binding BlockTimeLabeler}"
+                                            Visibility="{Binding HasBlock, Converter={StaticResource BoolToVisibility}}"
+                                            AutomationProperties.Name="{Binding BlockSummary}" />
+                        <TextBlock Style="{StaticResource CaptionText}" Margin="0,6,0,0" Text="{Binding BlockSummary}" TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <!-- History: every window over the chosen range -->
+                    <StackPanel Margin="0,6,0,0" Visibility="{Binding IsHistorySelected, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,4" AutomationProperties.Name="History range">
+                            <RadioButton Style="{StaticResource SegmentButton}" GroupName="ChartRange" Content="24 h" IsChecked="{Binding IsDayRange}" AutomationProperties.Name="Last 24 hours" />
+                            <RadioButton Style="{StaticResource SegmentButton}" GroupName="ChartRange" Content="7 d" IsChecked="{Binding IsWeekRange}" AutomationProperties.Name="Last 7 days" />
+                            <RadioButton Style="{StaticResource SegmentButton}" GroupName="ChartRange" Content="30 d" IsChecked="{Binding IsMonthRange}" AutomationProperties.Name="Last 30 days" />
+                        </StackPanel>
+                        <controls:LineChart Style="{StaticResource FlyoutLineChart}"
+                                            Series="{Binding HistorySeries}"
+                                            MinX="{Binding HistoryMinX}"
+                                            MaxX="{Binding HistoryMaxX}"
+                                            StartLabel="{Binding HistoryStartLabel}"
+                                            EndLabel="{Binding HistoryEndLabel}"
+                                            XLabeler="{Binding HistoryTimeLabeler}"
+                                            Visibility="{Binding HasHistory, Converter={StaticResource BoolToVisibility}}"
+                                            AutomationProperties.Name="{Binding HistorySummary}" />
+                        <TextBlock Style="{StaticResource CaptionText}" Margin="0,6,0,0" Text="{Binding HistorySummary}" TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <!-- Daily: tokens per day for two weeks, stacked by model on request -->
+                    <StackPanel Margin="0,6,0,0" Visibility="{Binding IsDailySelected, Converter={StaticResource BoolToVisibility}}">
+                        <ToggleButton Style="{StaticResource LinkToggle}"
+                                      Margin="0,0,0,6"
+                                      HorizontalAlignment="Right"
+                                      Content="By model"
+                                      IsChecked="{Binding StackByModel}"
+                                      AutomationProperties.Name="Split the daily chart by model" />
+                        <controls:BarChart Style="{StaticResource FlyoutBarChart}"
+                                           Series="{Binding DailySeries}"
+                                           Categories="{Binding DailyLabels}"
+                                           ValueFormatter="{Binding TokenFormatter}"
+                                           Visibility="{Binding HasDaily, Converter={StaticResource BoolToVisibility}}"
+                                           AutomationProperties.Name="{Binding DailySummary}" />
+                        <TextBlock Style="{StaticResource CaptionText}" Margin="0,6,0,0" Text="{Binding DailySummary}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Margin="0,12,0,0"
+                       Style="{StaticResource CaptionText}"
+                       Text="{Binding AnalyticsNoteText}"
+                       TextWrapping="Wrap"
+                       Visibility="{Binding HasAnalyticsNote, Converter={StaticResource BoolToVisibility}}" />
+
+            <!-- Footer -->
+            <Border Margin="0,16,0,0" Padding="0,12,0,0" BorderBrush="{DynamicResource HairlineBrush}" BorderThickness="0,1,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource CaptionText}" Text="{Binding LastUpdatedText}" />
+                        <TextBlock Style="{StaticResource CaptionText}" Text="{Binding SourcesText}" TextWrapping="Wrap" />
+                        <TextBlock Style="{StaticResource CaptionText}"
+                                   Text="{Binding RefreshFeedback}"
+                                   Visibility="{Binding HasRefreshFeedback, Converter={StaticResource BoolToVisibility}}" />
+                    </StackPanel>
+                    <Button x:Name="RefreshButton"
+                            Grid.Column="1"
+                            Margin="8,0,0,0"
+                            Style="{StaticResource FlyoutButton}"
+                            Content="_Refresh"
+                            Command="{Binding RefreshCommand}"
+                            AutomationProperties.Name="Refresh usage now" />
+                    <Button Grid.Column="2"
+                            Margin="6,0,0,0"
+                            Style="{StaticResource FlyoutButton}"
+                            Content="_Settings"
+                            Command="{Binding OpenSettingsCommand}"
+                            AutomationProperties.Name="Open settings" />
+                </Grid>
+            </Border>
+        </StackPanel>
+        </ScrollViewer>
+    </Border>
+</Window>

@@ -1,0 +1,51 @@
+name: Package and release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      TESTINGPLATFORM_TELEMETRY_OPTOUT: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Release build and tests
+        shell: pwsh
+        run: |
+          dotnet restore CodexTrayApp.sln
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet build CodexTrayApp.sln -c Release --no-restore
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet test --solution CodexTrayApp.sln -c Release --no-build --minimum-expected-tests 1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build x64 and Arm64 packages
+        shell: pwsh
+        run: |
+          $version = $env:GITHUB_REF_NAME.Substring(1)
+          ./tools/package-release.ps1 -Version $version
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $version = $env:GITHUB_REF_NAME.Substring(1)
+          $notes = "docs/releases/v$version.md"
+          if (Test-Path -LiteralPath $notes) {
+            gh release create $env:GITHUB_REF_NAME artifacts/release/*.zip artifacts/release/SHA256SUMS.txt `
+              --title "Codex Usage Tray $version" --notes-file $notes
+          } else {
+            gh release create $env:GITHUB_REF_NAME artifacts/release/*.zip artifacts/release/SHA256SUMS.txt `
+              --title "Codex Usage Tray $version" --generate-notes
+          }
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

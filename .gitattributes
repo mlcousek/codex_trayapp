@@ -1,0 +1,12 @@
+# Normalise line endings in the repository; checkout uses the platform default.
+* text=auto
+
+# Files that must keep LF regardless of platform.
+*.sh text eol=lf
+
+# Binary assets.
+*.png binary
+*.ico binary
+*.gif binary
+*.jpg binary
+*.db binary

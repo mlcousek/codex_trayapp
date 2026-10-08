@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- xunit.v3 test projects are executables. -->
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+    <RootNamespace>CodexTrayApp.Core.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="Shouldly" />
+    <PackageReference Include="NSubstitute" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Synthetic fixtures only: fake tokens, invented sessions. Never real data from ~/.codex. -->
+    <None Include="Fixtures\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\CodexTrayApp.Core\CodexTrayApp.Core.csproj" />
+    <ProjectReference Include="..\CodexTrayApp.ProcessProbe\CodexTrayApp.ProcessProbe.csproj" ReferenceOutputAssembly="false" SetConfiguration="Configuration=$(Configuration)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\src\CodexTrayApp\pricing.json" Link="PricingFixture\pricing.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Target Name="CopyCodexProcessProbe" AfterTargets="Build">
+    <ItemGroup>
+      <CodexProcessProbeFiles Include="..\CodexTrayApp.ProcessProbe\bin\$(Configuration)\net10.0\CodexTrayApp.ProcessProbe.exe" />
+      <CodexProcessProbeFiles Include="..\CodexTrayApp.ProcessProbe\bin\$(Configuration)\net10.0\CodexTrayApp.ProcessProbe.dll" />
+      <CodexProcessProbeFiles Include="..\CodexTrayApp.ProcessProbe\bin\$(Configuration)\net10.0\CodexTrayApp.ProcessProbe.deps.json" />
+      <CodexProcessProbeFiles Include="..\CodexTrayApp.ProcessProbe\bin\$(Configuration)\net10.0\CodexTrayApp.ProcessProbe.runtimeconfig.json" />
+    </ItemGroup>
+    <MakeDir Directories="$(OutDir)ProcessProbe" />
+    <Copy SourceFiles="@(CodexProcessProbeFiles)" DestinationFolder="$(OutDir)ProcessProbe" />
+  </Target>
+
+</Project>

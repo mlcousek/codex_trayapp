@@ -1,0 +1,18 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="SurfaceColor">#101820</Color>
+    <Color x:Key="SurfaceElevatedColor">#18232F</Color>
+    <Color x:Key="SurfaceTranslucentColor">#F0101820</Color>
+    <Color x:Key="HairlineColor">#334354</Color>
+    <Color x:Key="TextPrimaryColor">#F3F7FC</Color>
+    <Color x:Key="TextSecondaryColor">#ADBCCD</Color>
+    <Color x:Key="AccentColor">#69A9FF</Color>
+    <Color x:Key="OkColor">#69A9FF</Color>
+    <Color x:Key="SuccessColor">#64C7A5</Color>
+    <Color x:Key="WarnColor">#F5C46B</Color>
+    <Color x:Key="DangerColor">#FF8F91</Color>
+    <Color x:Key="Chart1Color">#69A9FF</Color>
+    <Color x:Key="Chart2Color">#A698FF</Color>
+    <Color x:Key="Chart3Color">#64C7A5</Color>
+    <Color x:Key="Chart4Color">#F5C46B</Color>
+    <Color x:Key="Chart5Color">#ADBCCD</Color>
+</ResourceDictionary>

@@ -1,0 +1,46 @@
+schema: spec-driven
+context: |
+  Windows 11 Codex usage tray utility; implementation is in progress.
+  Task-by-task recovery audit and evidence: docs/implementation-status.md.
+  Windows x64 Release build and 492 tests pass; integration/release gates remain open.
+  Reference functionality: C:/Git/Projects/claude_trayapp (MIT-licensed WPF app).
+  Stack: stable .NET 10, WPF/MVVM, SQLite, generated numbered tray icon.
+  Design: modern blue ChatGPT/Codex-inspired identity; dark/light/system themes.
+  Live quota is authoritative account data; local token/cost analytics remain separate.
+  Codex owns authentication; never copy Claude provider schemas or fabricate limits.
+rules:
+  specs:
+    - Define observable behavior with SHALL requirements and WHEN/THEN scenarios.
+  tasks:
+    - Every task includes its verification; leave implementation tasks unchecked until implemented.
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+# Example:
+#   context: |
+#     Tech stack: TypeScript, React, Node.js
+#     We use conventional commits
+#     Domain: e-commerce platform
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing

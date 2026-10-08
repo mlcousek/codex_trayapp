@@ -1,0 +1,65 @@
+# --- Secrets and user data: never commit these ---------------------------------
+.credentials*
+*.credentials.json
+pricing.local.json
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+cache.json
+settings.local.json
+
+# --- Build output -----------------------------------------------------------------
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+artifacts/
+publish/
+TestResults/
+*.trx
+*.binlog
+BenchmarkDotNet.Artifacts/
+
+# --- Visual Studio / Rider / VS Code --------------------------------------------
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.swp
+*.DotSettings.user
+launchSettings.json
+
+# --- NuGet ------------------------------------------------------------------------
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+.nuget/
+
+# --- Coverage / test tooling ----------------------------------------------------
+coverage/
+coverage.*.xml
+*.coverage
+*.coveragexml
+*.opencover.xml
+*.cobertura.xml
+
+# --- OS noise ------------------------------------------------------------------
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+$RECYCLE.BIN/
+
+# --- Local tooling --------------------------------------------------------------
+# Serena keeps its own .serena/.gitignore (cache and local overrides are excluded there).
+graphify-out/
+*.local.md
+.claude/

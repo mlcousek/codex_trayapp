@@ -1,0 +1,15 @@
+{
+  "effectiveDate": "2026-10-08",
+  "currency": "USD",
+  "source": "https://developers.openai.com/api/docs/pricing",
+  "models": [
+    {
+      "id": "gpt-5.3-codex",
+      "input": 1.75,
+      "output": 14,
+      "cacheRead": 0.175,
+      "cacheWrite5m": 0,
+      "cacheWrite1h": 0
+    }
+  ]
+}

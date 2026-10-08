@@ -1,0 +1,49 @@
+<Project>
+
+  <!-- Shared settings for every project in the repository. Per-project files only add what is unique to them. -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!-- Analyzers: the .NET analyzers run at the "recommended" level and code style is enforced in the build. -->
+  <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>9.0-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+  <!-- Release builds treat every warning as an error; Debug stays permissive for fast local iteration. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <!-- Published output ships without symbol files, for every project in the publish graph. -->
+  <PropertyGroup Condition="'$(_IsPublishing)' == 'true'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <!-- Assembly metadata. -->
+  <PropertyGroup>
+    <Product>Codex Usage Tray</Product>
+    <Authors>Jiří Mlčoušek and contributors</Authors>
+    <Company>Codex Usage Tray contributors</Company>
+    <Copyright>Copyright (c) 2026 Jiří Mlčoušek</Copyright>
+    <Description>Unofficial Windows system-tray app that shows your Codex usage at a glance. Not affiliated with OpenAI.</Description>
+    <RepositoryUrl>https://github.com/mlcousek/codex_trayapp</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <!-- Release destination is explicit build metadata; -p:ReleaseRepository= disables checks. -->
+    <ReleaseRepository Condition="'$(ReleaseRepository)' == ''">mlcousek/codex_trayapp</ReleaseRepository>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <VersionPrefix>0.1.1</VersionPrefix>
+    <NeutralLanguage>en</NeutralLanguage>
+  </PropertyGroup>
+
+</Project>
