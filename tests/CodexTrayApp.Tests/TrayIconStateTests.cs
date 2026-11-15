@@ -17,6 +17,15 @@ public class TrayIconStateTests
     public void Numeral_is_compact(double? percent, string expected) =>
         new TrayIconState(percent, UsageWindowStatus.Ok, false).Text.ShouldBe(expected);
 
+    [Theory]
+    [InlineData(89.0, "45")]
+    [InlineData(90.0, "!")]
+    [InlineData(99.0, "!")]
+    [InlineData(99.5, "!!!")]
+    [InlineData(100.0, "!!!")]
+    public void Weekly_limit_overrides_the_numeral(double weekly, string expected) =>
+        new TrayIconState(45, UsageWindowStatus.Ok, false, weekly).Text.ShouldBe(expected);
+
     [Fact]
     public void Unknown_has_no_percent_and_is_not_stale()
     {

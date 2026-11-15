@@ -25,6 +25,8 @@ public sealed partial class TrayIconViewModel : ObservableObject, IDisposable
     /// <summary>Shell tooltips are cut at 127 characters; stay comfortably below.</summary>
     public const int TooltipLimit = 120;
 
+    private const long WeeklyMinutes = 10080;
+
     private readonly UsagePoller _poller;
     private readonly AppPaths _paths;
     private readonly SettingsStore _settings;
@@ -92,9 +94,12 @@ public sealed partial class TrayIconViewModel : ObservableObject, IDisposable
         var stale = status.IsStale || status.State is PollState.Idle or PollState.Stale or PollState.RateLimited or PollState.Unauthenticated;
         var now = _clock.GetUtcNow();
 
+        var weekly = status.Snapshot?.Windows
+            .FirstOrDefault(w => w.Key.StartsWith("codex:", StringComparison.Ordinal) && w.DurationMinutes == WeeklyMinutes)?.UtilizationPercent;
+
         IconState = primary is null
-            ? TrayIconState.Unknown with { IsStale = stale }
-            : new TrayIconState(primary.UtilizationPercent, primary.Status, stale);
+            ? TrayIconState.Unknown with { IsStale = stale, WeeklyPercent = weekly }
+            : new TrayIconState(primary.UtilizationPercent, primary.Status, stale, weekly);
         Tooltip = BuildTooltip(status, now, settings.ShowInactiveWindows);
 
         if (status.State == PollState.Ok && status.Snapshot is { } snapshot && settings.Notifications.Enabled)
