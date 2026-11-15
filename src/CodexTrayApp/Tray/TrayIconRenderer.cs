@@ -37,7 +37,11 @@ public static class TrayIconRenderer
 
             context.DrawEllipse(null, Pen(palette.Track, thickness), center, radius, radius);
 
-            if (state.Percent is { } percent && percent > 0)
+            if (state.WeeklyExhausted)
+            {
+                context.DrawEllipse(null, Pen(Colors.Black, thickness), center, radius, radius);
+            }
+            else if (state.Percent is { } percent && percent > 0)
             {
                 var color = StatusColor(state.Status, palette);
                 if (state.IsStale)
@@ -68,7 +72,7 @@ public static class TrayIconRenderer
 
     private static void DrawNumeral(DrawingContext context, string text, double extent, Point center, Color color)
     {
-        var fontSize = text.Length >= 2 ? extent * 0.58 : extent * 0.72;
+        var fontSize = text.Length >= 3 ? extent * 0.46 : text.Length == 2 ? extent * 0.58 : extent * 0.72;
         var brush = new SolidColorBrush(color);
         brush.Freeze();
 
